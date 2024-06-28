@@ -37,7 +37,7 @@ export default function App() {
       <Button
         title="Add Task"
         onPress={addTask}
-        disabled={!title.trim()}  // Disable button if title is empty
+        disabled={!title.trim()}  
       />
       <FlatList
         data={tasks}
@@ -54,7 +54,7 @@ export default function App() {
             <Button
               title="Delete"
               onPress={() => deleteTask(item.id)}
-              color="#ff6347" // Tomato color for delete button
+              color="#ff6347" 
             />
           </View>
         )}
