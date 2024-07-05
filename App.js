@@ -1,29 +1,58 @@
-
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Button, FlatList, Text, Switch, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, TextInput, Button, FlatList, Text, Switch } from 'react-native';
+import { database } from './firebase'; 
+import { ref, onValue, push, update, remove, get, set } from 'firebase/database';
 
 export default function App() {
   const [title, setTitle] = useState('');
   const [tasks, setTasks] = useState([]);
 
-  // Function to add a new task with default status as 'due' (false)
+  // Load tasks from Firebase on component mount
+  useEffect(() => {
+    const taskRef = ref(database, 'tasks');
+    onValue(taskRef, snapshot => {
+      const data = snapshot.val() || {};
+      const loadedTasks = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+      setTasks(loadedTasks);
+    });
+  }, []);
+
+  // Function to add a new task with default status as 'due'
   const addTask = () => {
     if (title.trim()) {
-      setTasks([...tasks, { id: Date.now(), title, status: false }]);
-      setTitle('');
+      const newTaskRef = push(ref(database, 'tasks'));
+      set(newTaskRef, {
+        title,
+        status: false
+      }).then(() => {
+        setTitle('');
+      }).catch(error => {
+        console.error('Failed to add task:', error);
+      });
     }
   };
 
-  // Function to toggle task status between 'due' (false) and 'done' (true)
+  // Function to toggle task status between 'due' & 'done'
   const toggleStatus = (id) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? {...task, status: !task.status} : task
-    ));
+    const taskRef = ref(database, `tasks/${id}`);
+    get(taskRef).then(snapshot => {
+      if (snapshot.exists()) {
+        const task = snapshot.val();
+        update(taskRef, { status: !task.status }).catch(error => {
+          console.error('Failed to toggle status:', error);
+        });
+      }
+    }).catch(error => {
+      console.error('Error reading task:', error);
+    });
   };
 
   // Function to delete a task from the list
   const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id));
+    const taskRef = ref(database, `tasks/${id}`);
+    remove(taskRef).catch(error => {
+      console.error('Failed to delete task:', error);
+    });
   };
 
   return (
@@ -41,7 +70,7 @@ export default function App() {
       />
       <FlatList
         data={tasks}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.taskContainer}>
             <Text style={{ textDecorationLine: item.status ? 'line-through' : 'none', flex: 1 }}>

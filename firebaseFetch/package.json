@@ -1,5 +1,5 @@
 {
-  "name": "todoapp",
+  "name": "firebasefetch",
   "version": "1.0.0",
   "main": "expo/AppEntry.js",
   "scripts": {
@@ -9,13 +9,10 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-native-firebase/app": "^20.1.0",
-    "@react-native-firebase/firestore": "^20.1.0",
-    "expo": "~51.0.16",
+    "expo": "~51.0.18",
     "expo-status-bar": "~1.12.1",
-    "firebase": "^10.12.3",
     "react": "18.2.0",
-    "react-native": "0.74.2"
+    "react-native": "0.74.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
